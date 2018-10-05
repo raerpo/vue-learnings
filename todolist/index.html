@@ -18,10 +18,16 @@
       <button v-on:click="addTodo">Add</button>
     </label>
     <ul>
-      <li v-for="todo in todos">{{ todo }}</li>
+      <todo-item v-for="todo in todos" v-bind:todo="todo.data" v-bind:key="todo.id"></todo-item>
     </ul>
   </div>
   <script>
+
+    Vue.component('todo-item', {
+      props: ['todo'],
+      template: '<li>{{ todo }}</li>'
+    });
+
     new Vue({
       el: '#app',
       data: {
@@ -30,7 +36,7 @@
       },
       methods: {
         addTodo: function () {
-          this.todos.push(this.newTodo);
+          this.todos.push({data: this.newTodo, id: new Date().getTime()});
           this.newTodo = '';
         }
       }
