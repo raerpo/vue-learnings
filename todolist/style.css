@@ -36,26 +36,31 @@ main h2 {
 li.todo-item-wrapper {
   border-top: none;
 }
+.todo-item span {
+  position: relative;
+  transition: all ease-in-out .2s;
+}
 .todo-item:before {
   content: '⭕️';
   margin-right: .3rem;
 }
-.todo-item.completed {
-  opacity: .8;
-}
 .todo-item.completed span {
-  position: relative;
+  opacity: .3;
 }
 /* line through */
-.todo-item.completed span:after {
+.todo-item span:after {
   content: '';
   display: block;
   position: absolute;
-  width: 100%;
+  width: 0px;
   height: 1px;
   background-color: black;
   left: 0px;
   transform: translateY(-.5rem);
+  transition: width ease-in-out .15s;
+}
+.todo-item.completed span:after {
+  width: 100%;
 }
 .todo-item.completed:before {
   content: '✅';
