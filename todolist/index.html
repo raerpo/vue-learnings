@@ -19,10 +19,17 @@
       props: ['todo'],
       template: `<li
           class="todo-item todo-item-wrapper"
-          v-bind:class="{ completed: todo.completed }"
-          v-on:click="$emit('complete-todo')">
+          :class="{ completed: todo.completed }"
+          @click="$emit('complete-todo')">
             <span>{{ todo.data }}</span>
       </li>`
+    });
+
+    Vue.component('todo-action', {
+      props: ['type', 'selectedFilterType'],
+      template: `<button
+                  @click="$emit('select-filter-type')"
+                  :class="{active: selectedFilterType === type}">{{ type }}</button>`
     });
 
     new Vue({
@@ -30,9 +37,10 @@
       data: {
         newTodo: '',
         todos: [
-          {id: '1', data: "learn vue", completed: true},
-          {id: '2', data: "learn more Vue", completed: false}
-        ]
+          { id: '1', data: "learn vue", completed: true },
+          { id: '2', data: "learn more Vue", completed: false }
+        ],
+        filterType: 'all'
       },
       template: `
         <main>
@@ -46,21 +54,69 @@
           </div>
           <ul class="todo-list-wrapper" v-show="todos.length > 0">
             <todo-item
-              v-on:complete-todo="completeTodo(todo.id)"
-              v-for="todo in todos"
-              v-bind:todo="todo"
-              v-bind:key="todo.id">
+              v-for="todo in filteredTodos"
+              @complete-todo="completeTodo(todo.id)"
+              :todo="todo"
+              :key="todo.id">
             </todo-item>
           </ul>
+          <div class="todo-item-wrapper todo-actions" v-show="todos.length > 0">
+            <div class="items-left">
+              <p>{{ uncompleteTodosText }}</p>
+            </div>
+            <div class="items-actions">
+              <todo-action 
+                :type="'all'" 
+                :selectedFilterType="filterType"
+                @select-filter-type="setTodoFilterType('all')"></todo-action>
+              <todo-action 
+                :type="'active'" 
+                :selectedFilterType="filterType" 
+                @select-filter-type="setTodoFilterType('active')"></todo-action>
+              <todo-action 
+                :type="'complete'" 
+                :selectedFilterType="filterType" 
+                @select-filter-type="setTodoFilterType('complete')"></todo-action>
+            </div>
+            <div class="clear-completed" @click="clearCompletedTodos">
+              <button>Clear completed</button>
+            </div>
+          </div>
         </main>
       `,
+      computed: {
+        uncompleteTodosText: function () {
+          const uncompleteTodos = this.filteredTodos.filter(todo => !todo.completed);
+          return uncompleteTodos.length === 1 ? '1 item left' : `${uncompleteTodos.length} items left`;
+        },
+        filteredTodos: function () {
+          switch (this.filterType) {
+            case 'all':
+              return this.todos;
+              break;
+            case 'active':
+              return this.todos.filter(todo => !todo.completed);
+            case 'complete':
+              return this.todos.filter(todo => todo.completed);
+            default:
+              return this.todos;
+              break;
+          }
+        }
+      },
       methods: {
         addTodo: function () {
-          this.todos.push({data: this.newTodo, id: new Date().getTime(), completed: false});
+          this.todos.push({ data: this.newTodo, id: new Date().getTime(), completed: false });
           this.newTodo = '';
         },
-        completeTodo: function(completedTodoId) {
-          this.todos = this.todos.map(todo => todo.id === completedTodoId ? {...todo, completed: !todo.completed} : todo);
+        completeTodo: function (completedTodoId) {
+          this.todos = this.todos.map(todo => todo.id === completedTodoId ? { ...todo, completed: !todo.completed } : todo);
+        },
+        setTodoFilterType: function (selectedFilter) {
+          this.filterType = selectedFilter;
+        },
+        clearCompletedTodos: function () {
+          this.todos = this.todos.filter(todo => !todo.completed);
         }
       }
     })
