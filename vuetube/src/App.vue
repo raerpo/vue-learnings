@@ -68,6 +68,16 @@ main {
         "header header"
         "video-player video-list";
 }
+@media (max-width: 1300px) { 
+    main {
+        grid-template-rows: 50px auto 1fr;
+        grid-template-columns: 100%;
+        grid-template-areas: 
+            "header"
+            "video-player"
+            "video-list";
+    }
+}
 header {
     grid-area: header;
 }
